@@ -48,6 +48,7 @@
           $('#lastimage').on("load", function() {
             alert('yes');
             loadCanvas();
+            alert('1');
             drawLines(data);
             alert('no');
             //InitThis();
@@ -306,9 +307,11 @@
           }
           else if (j==shortestCol-1){
             if((N-M)<0){
-              $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
+              $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' id='lastimage' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
             }
-
+            else {
+              $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' id='lastimage' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
+            }
           }
           else {
             $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
@@ -322,7 +325,7 @@
             $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[k] + ".png' alt='hello'/></td><td></td></tr>");
           }
         }
-        else if ((M-N)>0){
+        else {
           if(k==longestCol-1){
             $('#tbl').append("<tr><td></td><td class = 'right'><img class='rightpic img-responsive' id='lastimage' src='images/r" + rightarr[k] + ".png' alt='hello'/></td></tr>");
           } else {

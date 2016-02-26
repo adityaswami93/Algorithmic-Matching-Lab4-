@@ -15,7 +15,10 @@
       $('#instruction').show();
       $('#errorDiv').show();
       $('#errorMsg').show();
-      createTable();
+
+      var N = 2;
+      var M = 3;
+
 
       var clickCounter = 0;
 
@@ -23,6 +26,13 @@
       match = Array(totalMatch).fill(-1);
       var totalLimit = 5 * totalMatch;
       var allMatch = false;
+      var url = 'http://cs3226.comp.nus.edu.sg/matching.php';
+
+      $.getJSON(url,{cmd:'generate',N:N,M:M},function(data){
+        createTable(data,N,M);
+      });
+
+/*
       $(document).on('click','#btn',function(){
         $('#totalLimit').text(totalLimit);
         $("#gen").hide();
@@ -60,20 +70,6 @@
         return false;
       });
 
-
-
-      /*
-      $('#resetbtn').click(function(){
-      $('#gen').show();
-      $("#msgHome").show();
-      $('#instruction').hide();
-      $('#tbl').empty();
-      $('#errorMsg').empty();
-      $('#tbl').hide();
-      $('#resetbtn').hide();
-
-    });
-    */
 
     $('#lastimage').on("load", function() {
       loadCanvas();
@@ -129,11 +125,7 @@
       countExceeded(clickCounter,totalLimit);
 
 
-      /*
-      else{
-      $("#errorMsg").text('Incorrect. Try Again');
-    }
-    */
+
 
     $('.leftpic-darken').click(function(e){
       return false;
@@ -190,11 +182,7 @@
 
     }
 
-    /*
-    else if({
-    $("#errorMsg").text('Incorrect. Try Again');
-  }
-  */
+
   countExceeded(clickCounter,totalLimit);
 
   $('.leftpic-darken').click(function(e){
@@ -211,6 +199,7 @@
 
 
   });
+  */
 
 
 
@@ -245,16 +234,32 @@
 
   var leftglbarr,rightglbarr;
 
-  function createTable() {
-      var num = $('#n').val();
-      var rand=[];
-      for (var i = 1;i<13;i++)
-          rand[i-1]=i;
-      rand = shuffle(rand);
-      var leftarr = rand.slice(0,num);
-      var rightarr = rand.slice(0,num);
-      leftarr = shuffle(leftarr);
-      rightarr = shuffle(rightarr);
+  function createTable(data,N,M) {
+    alert(data.E);
+    alert(data.E[0]);
+
+    var shortestCol = N;
+    if (N>M){
+      longestCol = M;
+    }
+
+      //var num = $('#n').val();
+      var randLeft=[];
+      var randRight=[];
+
+      for (var i = 1;i<11;i++){
+          randLeft[i-1]=i;
+          randRigth[i-1]=i;
+        }
+      randLeft = shuffle(randLeft);
+      randRight = shuffle(randRigth);
+
+      var leftarr = randLeft.slice(0,N);
+      var rightarr = randRight.slice(0,M);
+      //leftarr = shuffle(leftarr);
+      //rightarr = shuffle(rightarr);
+
+      /*
       var permutation = false;
       var k = 0;
       while (permutation == false){
@@ -269,20 +274,24 @@
               permutation = true;
           k++;
       }
+      */
+
       $('#tbl').show();
-      for (var j = 0; j < num; j++) {
+      for (var j = 0; j < shortestCol; j++) {
           if (j==0){
-              $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/" + leftarr[j] + ".png' alt='hello'/></td><td id='centrecol' rowspan = " + num + "><canvas id='cvs'></canvas></td><td class = 'right'><img class='rightpic img-responsive' src='images/" + rightarr[j] + ".png' alt='hello'/></td></tr>");
-          }
-          else if (j==(num-1)) {
-            $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' id='lastimage' src='images/" + rightarr[j] + ".png' alt='hello'/></td></tr>");
+              $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td id='centrecol' rowspan = " + num + "><canvas id='cvs'></canvas></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
           }
           else {
-            $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' src='images/" + rightarr[j] + ".png' alt='hello'/></td></tr>");
+            $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
           }
       }
       leftglbarr = leftarr;
       rightglbarr = rightarr;
+      /*
+      else if (j==(num-1)) {
+        $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' id='lastimage' src='images/" + rightarr[j] + ".png' alt='hello'/></td></tr>");
+      }
+      */
   }
 
 
@@ -408,7 +417,7 @@
       var singleDivide = height/num;
       var startX,startY;
       var startImg;
-      
+
       /*
       $('#cvs').mousedown(function (e) {
           piccliked = true;
@@ -416,7 +425,7 @@
       });
     */
 
-      
+
       $('#cvs').mousemove(function (e) {
           if(drawover==false){
               //alert('start');
@@ -441,7 +450,7 @@
       });
 
       $('#cvs').mouseup(function (e) {
-          
+
 
           //alert('true');
           //alert(startX);
@@ -495,12 +504,12 @@
            }
          }
          mousePressed = false;
-         
+
 
       });
         $('#cvs').mouseleave(function (e) {
           //piccliked = false;
-          
+
           if(mousePressed){
             if(startX<lowStartWidth){
              if(lowRangeWidth<lastX){
@@ -551,7 +560,7 @@
            }
          }
          mousePressed = false;
-         
+
 
       });
 
@@ -583,7 +592,7 @@
 
           //alert('true');
           //alert(startX);
-          
+
           if(startX<lowStartWidth){
            if(lowRangeWidth<lastX){
              var imgSelected = parseInt(lastY/singleDivide);
@@ -613,13 +622,13 @@
              }
            }
          }
-         
+
 
       });
     /*
         $('#cvs').mouseleave(function (e) {
           //piccliked = false;
-          
+
           if(mousePressed){
             if(startX<lowStartWidth){
              if(lowRangeWidth<lastX){
@@ -653,7 +662,7 @@
            mousePressed = false;
          }
 
-         
+
 
       });
     */

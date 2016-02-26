@@ -56,6 +56,7 @@
           longestCol = createTable(N,M);
           $('#lastimage').on("load", function() {
             loadCanvas();
+            updateMatch(data);
             drawLines(data,longestCol);
 
             //InitThis();
@@ -263,7 +264,7 @@
       value = edgeList[j][2];
       match[left].matched[right] = 1;
       match[left].score[right] = value;
-      alert(match[left].score[right]);
+      //alert(match[left].score[right]);
     }
   }
 

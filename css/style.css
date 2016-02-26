@@ -20,6 +20,7 @@ input {
     background-color: #66FF66;
 }
 
+
 /* Large desktops and laptops */
 @media (min-width: 1200px) {
   #tbl {

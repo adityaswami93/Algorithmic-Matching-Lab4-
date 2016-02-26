@@ -16,23 +16,32 @@
       $('#errorDiv').show();
       $('#errorMsg').show();
 
-      var N = 2;
-      var M = 4;
+      var N = $('#n').val();
+      var M = $('#m').val();
 
 
       var clickCounter = 0;
 
-      var totalMatch = parseInt($('#n').val());
+      var totalLeft = parseInt($('#n').val());
+      var totalRight = parseInt($('#m').val());
+      for(var j=0;j<totalLeft;j++){
+        var info = {};
+        info.matched = new Array(totalRight).fill(-1);
+        info.score = new Array(totalRight).fill(-1);
+        match[j] = info;
+      }
+      //alert(match[0].matched[0]);
       //match = Array(totalMatch).fill(-1);
       //var totalLimit = 5 * totalMatch;
       //var allMatch = false;
       var url = 'http://cs3226.comp.nus.edu.sg/matching.php';
-
+      var longestCol;
       $.getJSON(url,{cmd:'generate',N:N,M:M},function(data){
-        createTable(N,M);
+        longestCol = createTable(N,M);
         $('#lastimage').on("load", function() {
           loadCanvas();
-          drawLines(data);
+          updateMatch(data);
+          drawLines(data,longestCol);
           //InitThis();
         });
       });
@@ -44,13 +53,11 @@
         M = $('#m').val();
 
         $.getJSON(url,{cmd:'generate',N:N,M:M},function(data){
-          createTable(N,M);
+          longestCol = createTable(N,M);
           $('#lastimage').on("load", function() {
-            alert('yes');
             loadCanvas();
-            alert('1');
-            drawLines(data);
-            alert('no');
+            drawLines(data,longestCol);
+
             //InitThis();
           });
         });
@@ -245,6 +252,20 @@
       return false;
   }
 
+  function updateMatch(data){
+    var edgeList = data.E;
+    alert(data.E)
+    var size = edgeList.length;
+    var left,right, value;
+    for(var j=0;j<size;j++){
+      left = edgeList[j][0];
+      right = edgeList[j][1];
+      value = edgeList[j][2];
+      match[left].matched[right] = 1;
+      match[left].score[right] = value;
+      alert(match[left].score[right]);
+    }
+  }
 
   function compareString(str1,str2){
       if(str1===str2)
@@ -305,14 +326,6 @@
             //alert('yes ' + shortestCol );
               $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td id='centrecol' rowspan = " + longestCol + "><canvas id='cvs'></canvas></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
           }
-          else if (j==shortestCol-1){
-            if((N-M)<0){
-              $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' id='lastimage' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
-            }
-            else {
-              $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' id='lastimage' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
-            }
-          }
           else {
             $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
           }
@@ -342,6 +355,7 @@
         $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' id='lastimage' src='images/" + rightarr[j] + ".png' alt='hello'/></td></tr>");
       }
       */
+      return longestCol;
   }
 
 
@@ -394,7 +408,7 @@
     return array;
   }
 
-  function drawStraightLine(l, r,value) {
+  function drawStraightLine(l, r,value,longestCol) {
     var canvas = $('#cvs')[0];
     //canvas.text('january');
     var context = canvas.getContext('2d');
@@ -404,9 +418,9 @@
     var textSize = 0.05 * width;
     var leftText, rightText;
     var midWidth = 0.5 * width;
-    var num = parseInt($('#n').val());
-    var doubleDivide= height/(num*2);
-    var singleDivide = height/num;
+    //var num = parseInt($('#n').val());
+    var doubleDivide= height/(longestCol*2);
+    var singleDivide = height/longestCol;
     var startPt = doubleDivide + ((l) * singleDivide);
     var endPt = doubleDivide + ((r) * singleDivide);
     var midHeight = startPt + ((endPt-startPt)/2) - 10;
@@ -422,18 +436,18 @@
     context.stroke();
   }
 
-  function drawCurvyLine(l, r,value) {
+  function drawCurvyLine(l, r,value,longestCol) {
     var canvas = $('#cvs')[0];
     //canvas.text('january');
     var context = canvas.getContext('2d');
     var width = canvas.width;
     var height = canvas.height;
-    var num = parseInt($('#n').val());
+    //var num = parseInt($('#n').val());
     var textSize = 0.05 * width;
     var leftText, rightText;
     var midWidth = 0.5 * width;
-    var doubleDivide= height/(num*2);
-    var singleDivide = height/num;
+    var doubleDivide= height/(longestCol*2);
+    var singleDivide = height/longestCol;
     var startPt = doubleDivide + ((l) * singleDivide);
     var endPt = doubleDivide + ((r) * singleDivide);
     var midHeight = startPt + ((endPt-startPt)/2) - 10;
@@ -459,7 +473,7 @@
     context.fillText(value, midWidth, midHeight);
     context.stroke();
   }
-
+/*
   function matchImg(leftImg,rightImg){
     var totalMatch = parseInt($('#n').val());
     $('.right').find('img[src$="'+rightImg+'"]').addClass('rightpic-darken');
@@ -480,6 +494,7 @@
       return false;
     }
   }
+  */
 
   function Draw(x, y, isDown) {
       if (isDown) {
@@ -517,7 +532,7 @@
     }
   }
   */
-  function drawLines(data){
+  function drawLines(data,longestCol){
       //InitThis();
     var edgeList = data.E;
     var size = edgeList.length;
@@ -528,10 +543,10 @@
       value = edgeList[i][2];
         if (Math.abs(left - right) <= 1){
           //alert('yes');
-          drawStraightLine(left,right,value);
+          drawStraightLine(left,right,value,longestCol);
         }
         else {
-          drawCurvyLine(left,right,value);
+          drawCurvyLine(left,right,value,longestCol);
         }
     }
   }

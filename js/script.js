@@ -17,23 +17,45 @@
       $('#errorMsg').show();
 
       var N = 2;
-      var M = 3;
+      var M = 4;
 
 
       var clickCounter = 0;
 
       var totalMatch = parseInt($('#n').val());
-      match = Array(totalMatch).fill(-1);
-      var totalLimit = 5 * totalMatch;
-      var allMatch = false;
+      //match = Array(totalMatch).fill(-1);
+      //var totalLimit = 5 * totalMatch;
+      //var allMatch = false;
       var url = 'http://cs3226.comp.nus.edu.sg/matching.php';
 
       $.getJSON(url,{cmd:'generate',N:N,M:M},function(data){
-        createTable(data,N,M);
+        createTable(N,M);
+        $('#lastimage').on("load", function() {
+          loadCanvas();
+          drawLines(data);
+          //InitThis();
+        });
       });
 
-/*
+
       $(document).on('click','#btn',function(){
+        $('#tbl').empty();
+        N = $('#n').val();
+        M = $('#m').val();
+
+        $.getJSON(url,{cmd:'generate',N:N,M:M},function(data){
+          createTable(N,M);
+          $('#lastimage').on("load", function() {
+            alert('yes');
+            loadCanvas();
+            drawLines(data);
+            alert('no');
+            //InitThis();
+          });
+        });
+      });
+
+        /*
         $('#totalLimit').text(totalLimit);
         $("#gen").hide();
         $('#errorMsg').empty();
@@ -69,13 +91,11 @@
         clearArea();
         return false;
       });
+      */
 
 
-    $('#lastimage').on("load", function() {
-      loadCanvas();
-      //InitThis();
-    });
 
+/*
     $(document).on('mousedown','.left',function(){
       mousePressed = true;
       drawover = false;
@@ -234,13 +254,14 @@
 
   var leftglbarr,rightglbarr;
 
-  function createTable(data,N,M) {
-    alert(data.E);
-    alert(data.E[0]);
+  function createTable(N,M) {
+
 
     var shortestCol = N;
+    var longestCol = M;
     if (N>M){
-      longestCol = M;
+      shortestCol = M;
+      longestCol = N;
     }
 
       //var num = $('#n').val();
@@ -249,10 +270,10 @@
 
       for (var i = 1;i<11;i++){
           randLeft[i-1]=i;
-          randRigth[i-1]=i;
+          randRight[i-1]=i;
         }
       randLeft = shuffle(randLeft);
-      randRight = shuffle(randRigth);
+      randRight = shuffle(randRight);
 
       var leftarr = randLeft.slice(0,N);
       var rightarr = randRight.slice(0,M);
@@ -277,14 +298,40 @@
       */
 
       $('#tbl').show();
-      for (var j = 0; j < shortestCol; j++) {
+      var j = 0;
+      for (j = 0; j < shortestCol; j++) {
           if (j==0){
-              $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td id='centrecol' rowspan = " + num + "><canvas id='cvs'></canvas></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
+            //alert('yes ' + shortestCol );
+              $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td id='centrecol' rowspan = " + longestCol + "><canvas id='cvs'></canvas></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
+          }
+          else if (j==shortestCol-1){
+            if((N-M)<0){
+              $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
+            }
+
           }
           else {
             $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[j] + ".png' alt='hello'/></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[j] + ".png' alt='hello'/></td></tr>");
           }
       }
+      for(var k=j;k<longestCol;k++){
+        if((N-M)>0){
+          if(k==longestCol-1){
+            $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' id='lastimage' src='images/l" + leftarr[k] + ".png' alt='hello'/></td><td/></td></tr>");
+          } else {
+            $('#tbl').append("<tr><td class='left'><img class='leftpic img-responsive' src='images/l" + leftarr[k] + ".png' alt='hello'/></td><td></td></tr>");
+          }
+        }
+        else if ((M-N)>0){
+          if(k==longestCol-1){
+            $('#tbl').append("<tr><td></td><td class = 'right'><img class='rightpic img-responsive' id='lastimage' src='images/r" + rightarr[k] + ".png' alt='hello'/></td></tr>");
+          } else {
+            $('#tbl').append("<tr><td></td><td class = 'right'><img class='rightpic img-responsive' src='images/r" + rightarr[k] + ".png' alt='hello'/></td></tr>");
+          }
+        }
+      }
+      //loadCanvas();
+      //drawLines(data);
       leftglbarr = leftarr;
       rightglbarr = rightarr;
       /*
@@ -344,37 +391,49 @@
     return array;
   }
 
-  function drawStraightLine(l, r) {
+  function drawStraightLine(l, r,value) {
     var canvas = $('#cvs')[0];
     //canvas.text('january');
     var context = canvas.getContext('2d');
     var width = canvas.width;
     var height = canvas.height;
+    //alert(width+' '+height);
+    var textSize = 0.05 * width;
+    var leftText, rightText;
+    var midWidth = 0.5 * width;
     var num = parseInt($('#n').val());
     var doubleDivide= height/(num*2);
     var singleDivide = height/num;
     var startPt = doubleDivide + ((l) * singleDivide);
     var endPt = doubleDivide + ((r) * singleDivide);
+    var midHeight = startPt + ((endPt-startPt)/2) - 10;
+    //alert(midHeight+' '+midWidth);
     context.beginPath();
     context.moveTo(0, startPt);
     context.lineTo(width, endPt);
     context.strokeStyle = $('#selColor').val();
     context.lineWidth = $('#selWidth').val();
     context.lineJoin = "round";
+    context.font= textSize + "px Georgia";
+    context.fillText(value, midWidth, midHeight);
     context.stroke();
   }
 
-  function drawCurvyLine(l, r) {
+  function drawCurvyLine(l, r,value) {
     var canvas = $('#cvs')[0];
     //canvas.text('january');
     var context = canvas.getContext('2d');
     var width = canvas.width;
     var height = canvas.height;
     var num = parseInt($('#n').val());
+    var textSize = 0.05 * width;
+    var leftText, rightText;
+    var midWidth = 0.5 * width;
     var doubleDivide= height/(num*2);
     var singleDivide = height/num;
     var startPt = doubleDivide + ((l) * singleDivide);
     var endPt = doubleDivide + ((r) * singleDivide);
+    var midHeight = startPt + ((endPt-startPt)/2) - 10;
     /*
     context.beginPath();
     context.moveTo(0, startPt);
@@ -393,281 +452,9 @@
     context.strokeStyle = $('#selColor').val();
     context.lineWidth = $('#selWidth').val();
     context.lineJoin = "round";
+    context.font= textSize + "px Georgia";
+    context.fillText(value, midWidth, midHeight);
     context.stroke();
-  }
-
-
-
-
-  var lastX, lastY;
-  var ctx;
-  var piccliked = false;
-
-  function InitThis() {
-      var canvas = $('#cvs')[0];
-    //canvas.text('january');
-      ctx = canvas.getContext('2d');
-      var width = canvas.width;
-      var height = canvas.height;
-      var num = parseInt($('#n').val());
-      //canvas.text('january');
-      var lowRangeWidth = 0.95 * width;
-      var highRangeWidth = 1.05 * height;
-      var lowStartWidth = 0.05 * width;
-      var singleDivide = height/num;
-      var startX,startY;
-      var startImg;
-
-      /*
-      $('#cvs').mousedown(function (e) {
-          piccliked = true;
-          Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false);
-      });
-    */
-
-
-      $('#cvs').mousemove(function (e) {
-          if(drawover==false){
-              //alert('start');
-            startX = e.pageX - $(this).offset().left;
-                  //alert(startX);
-            startY = e.pageY - $(this).offset().top;
-            startImg = parseInt(startY/singleDivide);
-                  //mousePressed = false;
-            if((lowStartWidth<startX)&&(startX<lowRangeWidth)){
-              $("#errorMsg").text('Try again from nearer the picture');
-                clearArea();
-                drawLines(match);
-                mousePressed = false;
-            }
-            drawover = true;
-            Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false);
-          }
-          if (mousePressed) {
-              Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, true);
-              //alert(lowStartWidth+' '+startX);
-          }
-      });
-
-      $('#cvs').mouseup(function (e) {
-
-
-          //alert('true');
-          //alert(startX);
-          if(mousePressed){
-            if(startX<lowStartWidth){
-             if(lowRangeWidth<lastX){
-               var imgSelected = parseInt(lastY/singleDivide);
-               if(leftglbarr[startImg]==rightglbarr[imgSelected]){
-                 match[startImg] = imgSelected;
-                 matchImg(leftglbarr[startImg]+'.png',rightglbarr[imgSelected]+'.png');
-                 leftcol = -2;
-                rightcol = -2;
-                leftpicname = "";
-                rightpicname = "";
-               }
-               else {
-                 $("#errorMsg").text('The pictures do not match. Try again!');
-                 clearArea();
-                  drawLines(match);
-               }
-
-             }
-             else {
-                $("#errorMsg").text('The columns are different and or line not completed');
-                clearArea();
-                drawLines(match);
-              }
-           }
-           else if (startX>lowRangeWidth) {
-             if(lastX<lowStartWidth){
-               var imgSelected = parseInt(lastY/singleDivide);
-               if(leftglbarr[imgSelected]==rightglbarr[startImg]){
-                 match[imgSelected] = startImg;
-                 matchImg(leftglbarr[imgSelected]+'.png',rightglbarr[startImg]+'.png');
-                 leftcol = -2;
-                rightcol = -2;
-                leftpicname = "";
-                rightpicname = "";
-               }
-               else {
-                 $("#errorMsg").text('The pictures do not match. Try again!');
-                  clearArea();
-                  drawLines(match);
-               }
-             }
-             else {
-                $("#errorMsg").text('The columns are different and or line not completed');
-                clearArea();
-                drawLines(match);
-              }
-           }
-         }
-         mousePressed = false;
-
-
-      });
-        $('#cvs').mouseleave(function (e) {
-          //piccliked = false;
-
-          if(mousePressed){
-            if(startX<lowStartWidth){
-             if(lowRangeWidth<lastX){
-               var imgSelected = parseInt(lastY/singleDivide);
-               if(leftglbarr[startImg]==rightglbarr[imgSelected]){
-                 match[startImg] = imgSelected;
-                 matchImg(leftglbarr[startImg]+'.png',rightglbarr[imgSelected]+'.png');
-                 leftcol = -2;
-                rightcol = -2;
-                leftpicname = "";
-                rightpicname = "";
-               }
-               else {
-                 $("#errorMsg").text('The pictures do not match. Try again!');
-                 clearArea();
-                  drawLines(match);
-               }
-
-             }
-             else {
-                $("#errorMsg").text('The columns are different and or line not completed');
-                clearArea();
-                drawLines(match);
-              }
-           }
-           else if (startX>lowRangeWidth) {
-             if(lastX<lowStartWidth){
-               var imgSelected = parseInt(lastY/singleDivide);
-               if(leftglbarr[imgSelected]==rightglbarr[startImg]){
-                 match[imgSelected] = startImg;
-                 matchImg(leftglbarr[imgSelected]+'.png',rightglbarr[startImg]+'.png');
-                 leftcol = -2;
-                rightcol = -2;
-                leftpicname = "";
-                rightpicname = "";
-               }
-               else {
-                 $("#errorMsg").text('The pictures do not match. Try again!');
-                  clearArea();
-                  drawLines(match);
-               }
-             }
-             else {
-                $("#errorMsg").text('The columns are different and or line not completed');
-                clearArea();
-                drawLines(match);
-              }
-           }
-         }
-         mousePressed = false;
-
-
-      });
-
-    // mobile devices
-
-     $('#cvs').on('touchmove',function (e) {
-          if(drawover==false){
-              //alert('start');
-            startX = e.pageX - $(this).offset().left;
-                  //alert(startX);
-            startY = e.pageY - $(this).offset().top;
-            startImg = parseInt(startY/singleDivide);
-                  //mousePressed = false;
-            if((lowStartWidth<startX)&&(startX<lowRangeWidth)){
-              $("#errorMsg").text('Try again from nearer the picture');
-            }
-            drawover = true;
-            Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false);
-          }
-          if (mousePressed) {
-            alert('yes');
-              Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, true);
-              //alert(lowStartWidth+' '+startX);
-          }
-      });
-
-      $('#cvs').on('touchend',function (e) {
-          mousePressed = false;
-
-          //alert('true');
-          //alert(startX);
-
-          if(startX<lowStartWidth){
-           if(lowRangeWidth<lastX){
-             var imgSelected = parseInt(lastY/singleDivide);
-             if(leftglbarr[startImg]==rightglbarr[imgSelected]){
-               match[startImg] = imgSelected;
-               matchImg(leftglbarr[startImg],rightglbarr[imgSelected]);
-             }
-             else {
-               $("#errorMsg").text('The pictures do not match. Try again!');
-               clearArea();
-                drawLines(match);
-             }
-
-           }
-         }
-         else if (startX>lowRangeWidth) {
-           if(lastX<lowStartWidth){
-             var imgSelected = parseInt(lastY/singleDivide);
-             if(leftglbarr[imgSelected]==rightglbarr[startImg]){
-               match[imgSelected] = startImg;
-               matchImg(leftglbarr[imgSelected],rightglbarr[startImg]);
-             }
-             else {
-               $("#errorMsg").text('The pictures do not match. Try again!');
-               clearArea();
-                drawLines(match);
-             }
-           }
-         }
-
-
-      });
-    /*
-        $('#cvs').mouseleave(function (e) {
-          //piccliked = false;
-
-          if(mousePressed){
-            if(startX<lowStartWidth){
-             if(lowRangeWidth<lastX){
-               var imgSelected = parseInt(lastY/singleDivide);
-               if(leftglbarr[startImg]==rightglbarr[imgSelected]){
-                 match[startImg] = imgSelected;
-                 matchImg(leftglbarr[startImg]+'.png',rightglbarr[imgSelected]+'.png');
-               }
-               else {
-                 $("#errorMsg").text('The pictures do not match. Try again!');
-                 clearArea();
-                  drawLines(match);
-               }
-
-             }
-           }
-           else if (startX>lowRangeWidth) {
-             if(lastX<lowStartWidth){
-               var imgSelected = parseInt(lastY/singleDivide);
-               if(leftglbarr[imgSelected]==rightglbarr[startImg]){
-                 match[imgSelected] = startImg;
-                 matchImg(leftglbarr[imgSelected]+'.png',rightglbarr[startImg]+'.png');
-               }
-               else {
-                 $("#errorMsg").text('The pictures do not match. Try again!');
-                  clearArea();
-                  drawLines(match);
-               }
-             }
-           }
-           mousePressed = false;
-         }
-
-
-
-      });
-    */
-
-
   }
 
   function matchImg(leftImg,rightImg){
@@ -711,6 +498,7 @@
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   }
 
+  /*
   function drawLines(match){
     for (var i = 0; i < match.length; i++) {
       if (match[i]!=-1){
@@ -723,5 +511,24 @@
           drawCurvyLine(i,match[i]);
         }
       }
+    }
+  }
+  */
+  function drawLines(data){
+      //InitThis();
+    var edgeList = data.E;
+    var size = edgeList.length;
+    var left,right,value;
+    for (var i = 0; i < size; i++) {
+      left = edgeList[i][0];
+      right = edgeList[i][1];
+      value = edgeList[i][2];
+        if (Math.abs(left - right) <= 1){
+          //alert('yes');
+          drawStraightLine(left,right,value);
+        }
+        else {
+          drawCurvyLine(left,right,value);
+        }
     }
   }

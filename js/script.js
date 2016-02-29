@@ -751,7 +751,7 @@
       left = edgeList[i][0];
       right = edgeList[i][1];
       value = edgeList[i][2];
-      alert('yes');
+      //alert('yes')
       //alert(i);
         if (Math.abs(left - right) <= 1){
           //alert('yes');

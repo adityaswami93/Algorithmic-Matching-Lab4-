@@ -34,27 +34,15 @@
 
       <div class='text-center'>
         <button type="button" class='btn btn-danger' data-toggle="modal" data-target="#myModal">Reset</button>
-        <button type="button" class='btn btn-info' data-toggle="" data-target="">Solve</button>
+        <button type="button" id="solveBtn" class='btn btn-info' data-toggle="" data-target="">Solve</button>
         <!-- <button id='clearbtn' class='btn-warning'>Clear Area</button> -->
-          Line width : <select id="selWidth">
-              <option value="1">1</option>
-              <option value="3" selected="selected">3</option>
-              <option value="5">5</option>
-              <option value="7">7</option>
-          </select>
-          Color : <select id="selColor">
-              <option value="black">black</option>
-              <option value="blue" selected="selected">blue</option>
-              <option value="green">green</option>
-              <option value="yellow">yellow</option>
-              <option value="gray">gray</option>
-          </select>
       </div>
 
       <div id="myModal" class="modal fade"  role="dialog">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-body">
+               <button type="button" class="close" data-dismiss="modal">&times;</button>
               <fieldset id="Fieldset1">
                   <legend>Generate new worksheet with</legend>
                   <b>N</b>=<input type="number" min="2" max="10" value="4" id="n">
